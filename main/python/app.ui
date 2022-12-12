@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Tiktok Downloader</string>
+   <string>Facebook Image Downloader</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -27,9 +27,12 @@
        <item>
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
+          <layout class="QHBoxLayout" name="horizontalLayout"/>
+         </item>
+         <item>
           <widget class="QPushButton" name="pushButton">
            <property name="text">
-            <string>*.csv tiktok profile links</string>
+            <string>CSV file with facebook page url</string>
            </property>
           </widget>
          </item>

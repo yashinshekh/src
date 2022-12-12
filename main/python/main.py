@@ -14,12 +14,13 @@ if platform.system() == "Windows":
     import pkg_resources.py2_warn
 
 # from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.options import Options
 
 
 class Ui_Form(QtWidgets.QMainWindow):
     def setupUi(self, widget):
         widget.setObjectName("widget")
-        widget.resize(392, 355)
+        widget.resize(361, 406)
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(widget)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.tabWidget = QtWidgets.QTabWidget(widget)
@@ -30,6 +31,15 @@ class Ui_Form(QtWidgets.QMainWindow):
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.verticalLayout.addLayout(self.horizontalLayout)
+        self.lineEdit = QtWidgets.QLineEdit(self.tab)
+        self.lineEdit.setObjectName("lineEdit")
+        self.verticalLayout.addWidget(self.lineEdit)
+        self.lineEdit_2 = QtWidgets.QLineEdit(self.tab)
+        self.lineEdit_2.setObjectName("lineEdit_2")
+        self.verticalLayout.addWidget(self.lineEdit_2)
         self.pushButton = QtWidgets.QPushButton(self.tab)
         self.pushButton.setObjectName("pushButton")
         self.verticalLayout.addWidget(self.pushButton)
@@ -48,6 +58,9 @@ class Ui_Form(QtWidgets.QMainWindow):
         self.label_2 = QtWidgets.QLabel(self.tab_2)
         self.label_2.setObjectName("label_2")
         self.verticalLayout_3.addWidget(self.label_2)
+        self.label = QtWidgets.QLabel(self.tab_2)
+        self.label.setObjectName("label")
+        self.verticalLayout_3.addWidget(self.label)
         self.tabWidget.addTab(self.tab_2, "")
         self.verticalLayout_2.addWidget(self.tabWidget)
 
@@ -57,19 +70,22 @@ class Ui_Form(QtWidgets.QMainWindow):
 
     def retranslateUi(self, widget):
         _translate = QtCore.QCoreApplication.translate
-        widget.setWindowTitle(_translate("widget", "Tiktok Downloader"))
-        self.pushButton.setText(_translate("widget", "*.csv tiktok profile links"))
-        self.pushButton_2.setText(_translate("widget", "Start Automation"))
+        widget.setWindowTitle(_translate("widget", "AMAZON SCRAPER"))
+        self.lineEdit.setPlaceholderText(_translate("widget", "AMAZON domain (http://amazon.com/)"))
+        self.lineEdit_2.setPlaceholderText(_translate("widget", "Waiting Delay (s)"))
+        self.pushButton.setText(_translate("widget", "*.CSV Sku"))
+        self.pushButton_2.setText(_translate("widget", "Start Automation "))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("widget", "Main"))
         self.label_2.setText(_translate("widget", "https://fiverr.com/ajmiranisha"))
+        self.label.setText(_translate("widget", "RUN AS ADMINISTRATOR"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("widget", "Contact"))
+
 
         self.threads = []
         self.pushButton.clicked.connect(self.getfilename)
         self.pushButton_2.clicked.connect(self.start)
         self.fileName = "test"
         self.profiles = []
-
 
 
     def getfilename(self):
@@ -80,7 +96,6 @@ class Ui_Form(QtWidgets.QMainWindow):
         try:
             with open(self.fileName,"r") as r:
                 reader = csv.reader(r)
-                next(reader)
                 for line in reader:
                     self.profiles.append(line[0])
                     self.textBrowser.append(line[0])
@@ -88,22 +103,31 @@ class Ui_Form(QtWidgets.QMainWindow):
         except:
             self.eliminate = []
 
+
     def start(self):
-        self.textBrowser.append("Web scraping started ...")
+        self.textBrowser.append("Started web scraping ...")
+
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         self.outputFile, _ = QFileDialog.getSaveFileName(self,"QFileDialog.getSaveFileName()","","CSV Files (*);;CSV Files (*.csv)", options=options)
 
-        self.outputFile = self.outputFile if '.csv' in str(self.outputFile) else self.outputFile+'.csv'
+        self.outputFile = self.outputFile+'.csv' if self.outputFile else ''
 
-        with open(self.outputFile,"w",newline="",encoding="utf-8") as f:
-            writer = csv.writer(f)
-            writer.writerow(['url','video 1','video 2','video 3','video 4','video 5','video 6'])
+        if self.outputFile:
+            with open(self.outputFile,"w",newline="",encoding="utf-8") as f:
+                writer = csv.writer(f)
+                writer.writerow(['asin','monthly_sale_js','monthly_sale_helium','keepa_stock','scanunlimited','Has the brand owner or amazon made sales in the last 90 days?'])
 
-        self.browser = Browser(self.profiles)
-        self.threads.append(self.browser)
-        self.browser.start()
-        self.browser.signal.connect(self.trackdata)
+
+            self.textBrowser.append("Starting chrome browser ...")
+
+            newlists = self.profiles
+            # print(newlists)
+            self.browser = Browser(newlists,self.lineEdit.text(),self.lineEdit_2.text())
+
+            self.threads.append(self.browser)
+            self.browser.start()
+            self.browser.signal.connect(self.trackdata)
 
 
     def trackdata(self,result):
@@ -111,6 +135,7 @@ class Ui_Form(QtWidgets.QMainWindow):
         with open(self.outputFile,"a",newline="",encoding="utf-8") as f:
             writer = csv.writer(f)
             writer.writerow(result)
+            print(result)
 
 
 
