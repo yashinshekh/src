@@ -123,11 +123,16 @@ class Ui_Form(QtWidgets.QMainWindow):
 
             newlists = self.profiles
             # print(newlists)
-            self.browser = Browser(newlists,self.lineEdit.text(),self.lineEdit_2.text())
 
-            self.threads.append(self.browser)
-            self.browser.start()
-            self.browser.signal.connect(self.trackdata)
+            if newlists and self.lineEdit.text() and self.lineEdit_2.text():
+                self.browser = Browser(newlists,self.lineEdit.text(),self.lineEdit_2.text())
+
+                self.threads.append(self.browser)
+                self.browser.start()
+                self.browser.signal.connect(self.trackdata)
+
+            else:
+                self.textBrowser.append("Missing values")
 
 
     def trackdata(self,result):
