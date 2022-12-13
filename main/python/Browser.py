@@ -1,62 +1,112 @@
-from PyQt5.QtCore import QThread, pyqtSignal
-import datetime
-from datetime import timedelta
-from selenium import webdriver
-import platform
-import os
-import re
+from PyQt5.QtCore import QThread, pyqtSignal, QEventLoop, QTimer
 from parsel import Selector
-from selenium.webdriver.firefox.options import Options
-import time
+from selenium import webdriver
+import os
+import platform
+
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait as WDW
+from selenium.webdriver.support import expected_conditions as EC
+import csv
+from datetime import datetime as dt
+import time as t
 
 
 class Browser(QThread):
     signal = pyqtSignal('PyQt_PyObject')
 
-    def __init__(self,searchterm):
+    def __init__(self,csv,folder):
         QThread.__init__(self)
-        self.expirydate = '2023/04/01'
-        self.searchterm = searchterm
+        self.expirydate = '2023/12/20'
 
-    def getdata(self,url):
-        self.driver.get(url)
+        self.csv = csv
+        self.folder = folder
+        self.upload_url = 'https://www.pinterest.com/pin-builder/'
 
-        alltexts = ''.join([i.strip() for i in Selector(text=self.driver.page_source).xpath('.//text()').extract() if i.strip()])
-        emails = list(set([i.lower() for i in re.findall(r'[\w\.-]+@[\w\.-]+', alltexts) if '.png' not in str(i) and 'wixpress' not in str(i)
-                                    and '@1' not in str(i) and '@2' not in str(i) and '@2' not in str(i) and '@3' not in str(i) and '@4' not in str(i)
-                                    and '@5' not in str(i) and '@6' not in str(i) and '@7' not in str(i) and '@8' not in str(i) and '@9' not in str(i)
-                                    and '.x' not in str(i) and '.xn' not in str(i) and 'nr@' not in str(i) and '@n0' not in str(i) and '.content' not in str(i)
-                                    and 'name@' not in str(i) and 'email@' not in str(i) and 'content@' not in str(i) and 'filterempty' not in str(i)
-                                    and 'striphtml' not in str(i) and '.0' not in str(i) and 'domain' not in str(i) and 'example' not in str(i) and '.n02' not in str(i)
-                                    and 'jpeg' not in str(i) and 'jpg' not in i and 'png' not in i and 'sentry' not in i and 'svg' not in str(i) and '@0' not in str(i)
-                                    and '.js' not in str(i) and '@.' not in i and '.@' not in i and 'email' not in i and 'media' not in i and '-' not in i
-                                    ]))
-
-        for email in emails:
-            if '.com' in email:
-                email = email[:email.index('.com')+4]
-                self.signal.emit([email])
-                print([email])
-
-
-        nextlink = Selector(text=self.driver.page_source).xpath('.//*[@id="pnnext"]/@href').extract_first()
-        if nextlink:
-            time.sleep(10)
-            self.getdata("https://www.google.com"+nextlink)
-
-
+    def waituntildie(self,string):
+        if string not in str(self.driver.page_source):
+            print('waiting ...  '+str(string))
+            t.sleep(3)
+            return self.waituntildie(string)
+        return
 
     def run(self):
-        options = Options()
-        # options.add_argument('--headless')
+        options = webdriver.ChromeOptions()
 
         if platform.system() == "Windows":
-            self.driver = webdriver.Firefox(executable_path=os.getcwd()+'\\geckodriver.exe',options=options)
+            newpath = os.getenv('LOCALAPPDATA')+"\\Google\\Chrome\\User Data\\Selenium Profile"
+            options.add_argument("--user-data-dir="+newpath)
+
+            self.driver = webdriver.Chrome(
+                executable_path=os.getcwd()+'\\chromedriver.exe',
+                options=options
+            )
+
         else:
-            self.driver = webdriver.Firefox(options=options)
+            options.add_argument("user-data-dir=~/.config/chromium")
+            self.driver = webdriver.Chrome(
+                executable_path=os.getcwd()+'/chromedriver',
+                options=options
+            )
 
-        if datetime.datetime.strptime(self.expirydate,'%Y/%m/%d')+timedelta(days=46) >= datetime.datetime.now():
+        self.driver.maximize_window()
 
-            self.getdata('https://www.google.com/search?q='+self.searchterm)
+        try:
+            self.driver.get("https://www.pinterest.com/login/")
+            self.waituntildie("Notifications")
+        except:
+            pass
 
+        with open(self.csv,"r") as r:
+            reader = csv.reader(r)
+            next(reader)
+            for data in reader:
+                try:
+                    self.pinboard = str(data[0])  # Required.
+                    self.file_path = self.folder+'/'+str(data[1])  # Required.
+
+                    if data[1] not in os.listdir(self.folder):
+                        self.signal.emit({'msg':'image not found ...'})
+
+                    print(self.file_path)
+                    self.title = str(data[2])  # Required.
+                    self.description = str(data[3])  # Optional.
+                    self.alt_text = str(data[4])  # Optional.
+                    self.link = str(data[5])  # Optional.
+
+                    # try:
+                    self.driver.get(self.upload_url)  # Go to upload pins URL.
+                    t.sleep(3)
+                    self.driver.find_element_by_xpath('//button[@data-test-id="board-dropdown-select-button"]').click()
+                    t.sleep(4)
+                    try:
+                        self.driver.find_element_by_xpath('//div/text()[contains(.,"'+str(self.pinboard)+'")]/../../..').click()
+                    except:
+                        self.signal.emit({'msg':'Invalid pin board.'})
+                    t.sleep(2)
+                    self.driver.find_element_by_xpath('//input[contains(@id, "media-upload-input")]').send_keys(self.file_path)
+                    t.sleep(1)
+                    self.driver.find_element_by_xpath('//textarea[contains(@id, "pin-draft-title")]').send_keys(self.title)
+                    t.sleep(1)
+                    self.driver.find_element_by_xpath('//*[@role="combobox"]/div/div/div/span/br').send_keys(self.description)
+                    t.sleep(1)
+                    self.driver.find_element_by_xpath('//div[@data-test-id="pin-draft-alt-text-button"]/button').click()
+                    t.sleep(1)
+                    self.driver.find_element_by_xpath('//textarea[contains(@id, "pin-draft-alttext")]').send_keys(self.alt_text)
+                    t.sleep(1)
+                    self.driver.find_element_by_xpath('//textarea[contains(@id, "pin-draft-link")]').send_keys(self.link)
+                    t.sleep(1)
+                    self.driver.find_element_by_xpath('//button[@data-test-id="board-dropdown-save-button"]').click()
+                    # If a dialog div appears, pin is uploaded.
+                    t.sleep(15)
+
+                    self.signal.emit({
+                        'msg':'uploaded ...'
+                    })
+
+                except:
+                    self.signal.emit({'msg':"error during upload"})
         self.driver.close()
+
+
+
