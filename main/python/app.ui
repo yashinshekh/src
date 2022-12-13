@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Pinterest Auto Uploader</string>
+   <string>Grubhub Scraper</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -21,22 +21,15 @@
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>Main</string>
+       <string>Grubhub Scraper</string>
       </attribute>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
-          <widget class="QPushButton" name="pushButton">
-           <property name="text">
-            <string>*csv pinterst data</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButton_3">
-           <property name="text">
-            <string>Image Location</string>
+          <widget class="QLineEdit" name="lineEdit">
+           <property name="placeholderText">
+            <string>Grubhub Url</string>
            </property>
           </widget>
          </item>
