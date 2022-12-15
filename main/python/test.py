@@ -25,6 +25,12 @@ class Ui_widget(object):
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
+        self.pushButton = QtWidgets.QPushButton(self.tab)
+        self.pushButton.setObjectName("pushButton")
+        self.verticalLayout.addWidget(self.pushButton)
+        self.pushButton_3 = QtWidgets.QPushButton(self.tab)
+        self.pushButton_3.setObjectName("pushButton_3")
+        self.verticalLayout.addWidget(self.pushButton_3)
         self.lineEdit = QtWidgets.QLineEdit(self.tab)
         self.lineEdit.setObjectName("lineEdit")
         self.verticalLayout.addWidget(self.lineEdit)
@@ -52,10 +58,12 @@ class Ui_widget(object):
 
     def retranslateUi(self, widget):
         _translate = QtCore.QCoreApplication.translate
-        widget.setWindowTitle(_translate("widget", "Grubhub Scraper"))
-        self.lineEdit.setPlaceholderText(_translate("widget", "Grubhub Url"))
+        widget.setWindowTitle(_translate("widget", "Pinterest Auto Uploader"))
+        self.pushButton.setText(_translate("widget", "*csv pinterst data"))
+        self.pushButton_3.setText(_translate("widget", "Image Location"))
+        self.lineEdit.setPlaceholderText(_translate("widget", "inital delay (in seconds)"))
         self.pushButton_2.setText(_translate("widget", "Start Automation"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("widget", "Grubhub Scraper"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("widget", "Main"))
         self.label_2.setText(_translate("widget", "https://fiverr.com/ajmiranisha"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("widget", "Contact"))
 

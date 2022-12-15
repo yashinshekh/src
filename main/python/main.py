@@ -30,6 +30,12 @@ class Ui_Form(QtWidgets.QMainWindow):
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
+        self.pushButton = QtWidgets.QPushButton(self.tab)
+        self.pushButton.setObjectName("pushButton")
+        self.verticalLayout.addWidget(self.pushButton)
+        self.pushButton_3 = QtWidgets.QPushButton(self.tab)
+        self.pushButton_3.setObjectName("pushButton_3")
+        self.verticalLayout.addWidget(self.pushButton_3)
         self.lineEdit = QtWidgets.QLineEdit(self.tab)
         self.lineEdit.setObjectName("lineEdit")
         self.verticalLayout.addWidget(self.lineEdit)
@@ -57,61 +63,47 @@ class Ui_Form(QtWidgets.QMainWindow):
 
     def retranslateUi(self, widget):
         _translate = QtCore.QCoreApplication.translate
-        widget.setWindowTitle(_translate("widget", "Grubhub Scraper"))
-        self.lineEdit.setPlaceholderText(_translate("widget", "Grubhub Url"))
+        widget.setWindowTitle(_translate("widget", "Pinterest Auto Uploader"))
+        self.pushButton.setText(_translate("widget", "*csv pinterst data"))
+        self.pushButton_3.setText(_translate("widget", "Image Location"))
+        self.lineEdit.setPlaceholderText(_translate("widget", "inital delay (in seconds)"))
         self.pushButton_2.setText(_translate("widget", "Start Automation"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("widget", "Grubhub Scraper"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("widget", "Main"))
         self.label_2.setText(_translate("widget", "https://fiverr.com/ajmiranisha"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("widget", "Contact"))
 
-
         self.threads = []
+        self.pushButton.clicked.connect(self.getcsvfilename)
+        self.pushButton_3.clicked.connect(self.getimagefolder)
         self.pushButton_2.clicked.connect(self.start)
         self.fileName = "test"
         self.profiles = []
 
 
+    def getimagefolder(self):
+        self.folder = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
 
-    def getfilename(self):
+        self.textBrowser.append(str(self.folder))
+
+    def getcsvfilename(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        self.fileName, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getSaveFileName()","","CSV Files (*);;CSV Files (*.csv)", options=options)
+        self.csv, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getSaveFileName()","","CSV Files (*);;CSV Files (*.csv)", options=options)
 
-        try:
-            with open(self.fileName,"r") as r:
-                reader = csv.reader(r)
-                next(reader)
-                for line in reader:
-                    self.profiles.append(line[0])
-                    self.textBrowser.append(line[0])
+        self.textBrowser.append(str(self.csv))
 
-        except:
-            self.eliminate = []
 
     def start(self):
         self.textBrowser.append("Web scraping started ...")
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        self.outputFile, _ = QFileDialog.getSaveFileName(self,"QFileDialog.getSaveFileName()","","CSV Files (*);;CSV Files (*.csv)", options=options)
 
-        self.outputFile = self.outputFile if '.csv' in str(self.outputFile) else self.outputFile+'.csv'
-
-        with open(self.outputFile,"w",newline="",encoding="utf-8") as f:
-            writer = csv.writer(f)
-            writer.writerow(['link','title','rating','cuisine','pricing','delivery_info','address','open_timing'])
-
-        self.browser = Browser(self.lineEdit.text())
+        self.browser = Browser(self.csv,self.folder,self.lineEdit.text())
         self.threads.append(self.browser)
         self.browser.start()
         self.browser.signal.connect(self.trackdata)
 
 
     def trackdata(self,result):
-        self.textBrowser.append(result[0])
-        with open(self.outputFile,"a",newline="",encoding="utf-8") as f:
-            writer = csv.writer(f)
-            writer.writerow(result)
-
+        self.textBrowser.append(result['msg'])
 
 
 

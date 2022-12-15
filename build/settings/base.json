@@ -1,5 +1,5 @@
 {
-    "app_name": "RESTAURANT SCRAPER",
+    "app_name": "Pinterest Auto Uploader",
     "author": "nyasin585@gmail.com",
     "main_module": "src/main/python/main.py",
     "version": "0.0.0"
