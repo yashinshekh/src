@@ -18,7 +18,7 @@ class OscnSpider(scrapy.Spider):
     }
 
     if "oscn.csv" not in os.listdir(os.getcwd()):
-        with open("oscn.csv","a") as f:
+        with open("oscn.csv","a",newline="",encoding="utf-8") as f:
             writer = csv.writer(f)
             writer.writerow(['link','case_no','defendents','filed','closed','Judge','parties','attorneys','issue','filed_date','filed_by','defendent','disposition_information',
                              'docket_date','docket_code','docket_description','party_name','count','amount',
